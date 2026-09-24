@@ -37,6 +37,7 @@ built against and the firmware refuses it on a mismatch, so see
 | **Set UUID** | Hex byte editor, exactly 16 bytes. Much less painful than typing dashes on a keyboard |
 | **Set major / minor** | 0 to 65535 |
 | **Set interval** | 20 to 5000 ms. Apple suggests 100 ms for iBeacon |
+| **Load / Save / Delete saved beacon** | Up to 8 named profiles, so you can keep a few beacons around and switch between them |
 | **Status** | What's configured and whether it's on air |
 
 Two behaviours worth knowing, because they're deliberate:
@@ -49,7 +50,42 @@ and walk out of range. Stop it from the menu when you're done.
 values. Otherwise the air would carry the old frame while the menu claims something
 else.
 
-Settings live in `/ext/apps_data/ibeacon/settings.bin`.
+Settings live in `/ext/apps_data/ibeacon/settings.conf`, as plain text you can read
+and edit yourself:
+
+```
+uuid=E2C56DB5DFFB48D2B060D0F5A71096E0
+major=1
+minor=1
+interval=100
+profile=Office|E2C56DB5DFFB48D2B060D0F5A71096E0|1|2
+```
+
+---
+
+## Cloning a beacon you don't own
+
+The Flipper's firmware only exposes the **transmit** side of Bluetooth to apps, so
+this app cannot listen for other beacons. There is no scan API: no observer role, no
+advertisement callback. `furi_hal_bt_start_rx` sounds promising but is Direct Test
+Mode, which gives raw signal strength on one channel, not parsed advertisements.
+
+So the listening happens on your computer instead:
+
+```bash
+pip install bleak
+
+python3 tools/scan.py           # list the iBeacons around you
+python3 tools/scan.py --save    # pick one, name it, write it onto the Flipper
+```
+
+It reads the settings file off the Flipper over the serial console, adds the beacon
+as a saved profile, sets it as the current one, and writes it back. That is the
+reason the settings are text rather than binary: the serial console cannot carry
+arbitrary bytes, since 0x03 ends the transfer.
+
+Close the app on the Flipper before running `--save`, and open it afterwards. It
+reads the file at startup, and writes it when you change something.
 
 ---
 
