@@ -1,0 +1,14 @@
+App(
+    appid="ibeacon",
+    name="iBeacon Emulator",
+    apptype=FlipperAppType.EXTERNAL,
+    entry_point="ibeacon_app",
+    stack_size=2 * 1024,
+    # Puts it under Apps > Bluetooth instead of the generic list.
+    fap_category="Bluetooth",
+    fap_icon="icon.png",
+    fap_description="Broadcast a configurable iBeacon: UUID, major, minor, interval",
+    fap_author="Marvin Visser",
+    fap_version="1.0",
+    requires=["gui", "storage"],
+)
