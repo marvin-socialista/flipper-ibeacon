@@ -3,3 +3,4 @@ build/
 .ufbt/
 .venv/
 .vscode/
+__pycache__/
